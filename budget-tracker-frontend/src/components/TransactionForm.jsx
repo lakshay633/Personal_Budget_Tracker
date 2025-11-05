@@ -8,10 +8,11 @@ import {
   Alert,
 } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { postTransaction } from "../services/api";
+import { postTransaction, getTransactions } from "../services/api";
 import {
   addTransaction,
   setError,
+  setTransactions,
 } from "../features/transactions/transactionSlice";
 
 const categories = [
@@ -42,7 +43,19 @@ function TransactionForm() {
     try {
       const data = { type, category, amount: parseFloat(amount), date };
       const response = await postTransaction(data);
+
+      // optimistic add for responsiveness
       dispatch(addTransaction(response.data));
+
+      // fetch the latest list to ensure UI is in sync with backend
+      try {
+        const listRes = await getTransactions();
+        dispatch(setTransactions(Array.isArray(listRes.data) ? listRes.data : []));
+      } catch (listErr) {
+        // If fetching list fails, set an error but keep the optimistic item
+        dispatch(setError("Failed to refresh transactions list"));
+      }
+
       setSuccess("Transaction added!");
       setLocalError("");
       setCategory("");

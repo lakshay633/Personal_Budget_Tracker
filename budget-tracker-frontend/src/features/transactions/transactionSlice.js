@@ -1,39 +1,40 @@
-//helper function to create a slice for transaction state management from redux toolkit
 import { createSlice } from "@reduxjs/toolkit";
 
-//Note: The initial state defines the default values for the transaction state
 const initialState = {
-  transactions: [], //stores list of all transactions..
-  budgets: [], //stores budget information...
-  reports: {}, //stores report data...
-  loading: false, //indicates if data is being loaded
-  error: null, //stores error messages..
+  transactions: [], // array of transaction objects
+  budgets: [],
+  reports: {},
+  loading: false,
+  error: null,
 };
 
-//Creating the transaction slice with reducers to handle various actions
 const transactionSlice = createSlice({
   name: "transactions",
   initialState,
   reducers: {
-    //Sets the list of transactions in the state
-    setTransactions: (state, action) => {
-      state.transactions = action.payload;
+    setTransactions(state, action) {
+      // Expect action.payload to be an array of transactions
+      state.transactions = Array.isArray(action.payload) ? action.payload : [];
     },
-    addTransaction: (state, action) => {
-      state.transactions.push(action.payload); //Adds a new transaction to the list beacuse we don't want to reload the whole list we just want to append the existing data...
+    addTransaction(state, action) {
+      // Prepend the new transaction so it appears at the top
+      if (!state.transactions) state.transactions = [];
+      state.transactions = [action.payload, ...state.transactions];
     },
-    //Sets the list of budgets in the state...
-    setBudgets: (state, action) => {
+    setBudgets(state, action) {
       state.budgets = action.payload;
     },
-    setReports: (state, action) => {
+    setReports(state, action) {
       state.reports = action.payload;
     },
-    setLoading: (state, action) => {
-      state.loading = action.payload;
+    setLoading(state, action) {
+      state.loading = !!action.payload;
     },
-    setError: (state, action) => {
-      state.error = action.payload;
+    setError(state, action) {
+      state.error = action.payload || null;
+    },
+    clearTransactions(state) {
+      state.transactions = [];
     },
   },
 });
@@ -45,6 +46,7 @@ export const {
   setReports,
   setLoading,
   setError,
+  clearTransactions,
 } = transactionSlice.actions;
 
 export default transactionSlice.reducer;

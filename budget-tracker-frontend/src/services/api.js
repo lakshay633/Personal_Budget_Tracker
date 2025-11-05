@@ -3,15 +3,6 @@ import axios from "axios";
 const API = axios.create({
   baseURL: "http://localhost:8000", // backend root (no /api)
 });
-
-// Attach token to every request if available
-// API.interceptors.request.use((config) => {
-//   const token = localStorage.getItem("token"); // we store SimpleJWT "access" token here
-//   if (token) {
-//     config.headers.Authorization = `Bearer ${token}`;
-//   }
-//   return config;
-// });
 API.interceptors.request.use((config) => {
   try {
     const token = localStorage.getItem("token"); // expected to be SimpleJWT "access"

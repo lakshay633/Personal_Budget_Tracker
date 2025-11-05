@@ -15,12 +15,23 @@ function Dashboard() {
     (state) => state.transactions
   );
 
+  // defensive: ensure we always map over an array
+  const safeTransactions = Array.isArray(transactions) ? transactions : [];
+
+
   useEffect(() => {
     const fetchData = async () => {
       dispatch(setLoading(true));
       try {
-        const response = await getTransactions();
-        dispatch(setTransactions(response.data));
+const response = await getTransactions();
+// backend returns paginated response: { count, next, previous, results: [...] }
+// choose the results array if present, otherwise accept plain array or fallback to []
+const payload = Array.isArray(response.data)
+  ? response.data
+  : response.data && response.data.results
+  ? response.data.results
+  : [];
+dispatch(setTransactions(payload));
       } catch (err) {
         dispatch(setError("Failed to load transactions"));
       } finally {
@@ -48,19 +59,19 @@ function Dashboard() {
             {loading && <Typography>Loading...</Typography>}
             {error && <Typography color="error">{error}</Typography>}
             <Box mt={2}>
-              {transactions.map((tx) => (
-                <Box
-                  key={tx.id}
-                  mb={1}
-                  p={2}
-                  border="1px solid #ccc"
-                  borderRadius={2}
-                >
-                  <Typography>
-                    {tx.date} - {tx.category} - ₹{tx.amount} ({tx.type})
-                  </Typography>
-                </Box>
-              ))}
+{safeTransactions.map((tx) => (
+  <Box
+    key={tx.id}
+    mb={1}
+    p={2}
+    border="1px solid #ccc"
+    borderRadius={2}
+  >
+    <Typography>
+      {tx.date} - {tx.category} - ₹{tx.amount} ({tx.type})
+    </Typography>
+  </Box>
+))}
             </Box>
           </Grid>
         </Grid>
