@@ -127,7 +127,6 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-<<<<<<< HEAD
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -140,48 +139,8 @@ export default function Login() {
       setError(err.response?.data?.detail || "Login failed");
     } finally {
       setLoading(false);
-=======
-const handleLogin = async () => {
-  try {
-    // call backend login (SimpleJWT) which returns { access, refresh }
-    const response = await loginUser({ email, password });
-
-    if (!response || !response.data) {
-      setError("Login failed: no response from server.");
-      return;
->>>>>>> 32999f2865ca96a4ef454df3e9f7e7e07925bb0f
     }
-
-    const { access, refresh } = response.data;
-
-    if (!access) {
-      setError("Login failed: access token not returned.");
-      return;
-    }
-
-    // Save tokens to localStorage (access stored under 'token' because api interceptor reads 'token')
-    localStorage.setItem("token", access);
-    if (refresh) localStorage.setItem("refresh", refresh);
-
-    // Update redux state (store token)
-    dispatch(loginSuccess({ token: access }));
-
-    // Clear any error and navigate to dashboard
-    setError("");
-    navigate("/dashboard", { replace: true });
-  } catch (err) {
-    console.error("Login error:", err);
-    if (err.response && err.response.data) {
-      const data = err.response.data;
-      if (data.detail) setError(data.detail);
-      else if (data.error) setError(JSON.stringify(data.error));
-      else setError("Login failed. Check credentials.");
-    } else {
-      setError("Login failed. Check network connection.");
-    }
-  }
-};
-
+  };
 
   return (
     <>

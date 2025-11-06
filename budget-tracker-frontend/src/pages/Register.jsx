@@ -151,7 +151,6 @@ export default function Register() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-<<<<<<< HEAD
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -179,69 +178,8 @@ export default function Register() {
       );
     } finally {
       setLoading(false);
-=======
-  const [success, setSuccess] = useState("");
-  const [password2, setPassword2] = useState("");
-
-const handleRegister = async () => {
-  // client-side validation before hitting backend
-  if (!name || !email || !password || !password2) {
-    setError("All fields are required.");
-    return;
-  }
-
-  if (password.length < 8) {
-    setError("Password must be at least 8 characters long.");
-    return;
-  }
-
-  if (password === password.toLowerCase() || password === password.toUpperCase()) {
-    // simple heuristic: encourage mixed case (optional)
-    // not required by backend, but helps avoid weak passwords
-  }
-
-  if (password !== password2) {
-    setError("Passwords do not match.");
-    return;
-  }
-
-  try {
-    setError("");
-    await registerUser({ name, email, password, password2 });
-    // on success you may redirect to login or auto-login depending on backend behavior
-    setSuccess("Registration successful! You can now log in.");
-    navigate("/", { replace: true });
-    // clear inputs (optional)
-    setName("");
-    setEmail("");
-    setPassword("");
-    setPassword2("");
-  } catch (err) {
-    // backend may return structured error; display friendly message
-    if (err.response && err.response.data) {
-      const data = err.response.data;
-      // try to extract validation messages
-      if (data.error) {
-        // your backend wraps errors in an "error" object per your earlier example
-        const e = data.error;
-        // prefer first available message
-        const msg =
-          (e.password && e.password.join(" ")) ||
-          (e.password2 && e.password2.join(" ")) ||
-          (e.email && e.email.join(" ")) ||
-          JSON.stringify(e);
-        setError(msg || "Registration failed.");
-      } else if (data.password) {
-        setError(data.password.join(" "));
-      } else {
-        setError("Registration failed. Please try again.");
-      }
-    } else {
-      setError("Registration failed. Please check your connection.");
->>>>>>> 32999f2865ca96a4ef454df3e9f7e7e07925bb0f
     }
-  }
-};
+  };
 
   return (
     <>
@@ -272,7 +210,6 @@ const handleRegister = async () => {
             placeholder="Password"
             required
           />
-<<<<<<< HEAD
           <Input
             name="password2"
             type="password"
@@ -283,31 +220,6 @@ const handleRegister = async () => {
           />
           <Button type="submit" disabled={loading}>
             {loading ? "Creating Account..." : "Register"}
-=======
-                    <TextField
-            label="Confirm Password"
-            type="password"
-            fullWidth
-            margin="normal"
-            value={password2}
-            onChange={(e) => setPassword2(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <LockOutlinedIcon color="primary" />
-                </InputAdornment>
-              ),
-            }}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            onClick={handleRegister}
-            sx={{ mt: 2 }}
-          >
-            Register
->>>>>>> 32999f2865ca96a4ef454df3e9f7e7e07925bb0f
           </Button>
         </form>
         {error && <ErrorText>{error}</ErrorText>}
