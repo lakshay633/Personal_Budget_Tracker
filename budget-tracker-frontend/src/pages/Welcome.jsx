@@ -1,65 +1,73 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import { Box, Typography, Button, Container } from "@mui/material";
-import EmojiNatureIcon from "@mui/icons-material/EmojiNature";
+import styled from "styled-components";
+import { Link } from "react-router-dom";
+import Footer from "../components/common/Footer";
+
+const Container = styled.section`
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #4e89ae, #ed6663);
+  color: white;
+  text-align: center;
+  padding: 40px 20px;
+`;
+
+const Title = styled.h1`
+  font-size: 48px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  line-height: 1.2;
+`;
+
+const Tagline = styled.p`
+  font-size: 18px;
+  margin-bottom: 40px;
+  max-width: 600px;
+  line-height: 1.6;
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+`;
+
+const Button = styled(Link)`
+  background: white;
+  color: ${({ theme }) => theme.colors.primary};
+  padding: 12px 26px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.accent};
+    color: white;
+  }
+`;
 
 export default function Welcome() {
-  const navigate = useNavigate();
-
   return (
-    <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-      <Box
-        sx={{
-          // height: "100%",
-          flex: 1,
-          display: "flex",
-          alignItems: "center",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          bgcolor: "grey.100",
-          background:
-            "linear-gradient(135deg, rgba(25,118,210,0.08) 0%, rgba(103,58,183,0.04) 100%)",
-          px: 2,
-          pb: 2,
-        }}
-      >
-        <Container maxWidth="md">
-          <Box
-            sx={{
-              display: "flex",
-              gap: 6,
-              alignItems: "center",
-              flexDirection: "column",
-              textAlign: "center",
-            }}
-          >
-            <EmojiNatureIcon sx={{ fontSize: 64, color: "primary.main" }} />
-            <Typography variant="h3" sx={{ fontWeight: 700, mt: 1, mb: 2 }}>
-              Budget Tracker
-            </Typography>
-            <Typography variant="h6" sx={{ color: "text.secondary", mb: 3 }}>
-              Track spending, set budgets and generate insightful reports — all
-              in one place.
-            </Typography>
-            <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
-              <Button
-                variant="contained"
-                size="large"
-                onClick={() => navigate("/login")}
-              >
-                Get started
-              </Button>
-              <Button
-                variant="outlined"
-                size="large"
-                onClick={() => navigate("/register")}
-              >
-                Create account
-              </Button>
-            </Box>
-          </Box>
-        </Container>
-      </Box>
-    </Box>
+    <>
+      <Container>
+        <Title>Welcome to Budget Tracker</Title>
+        <Tagline>
+          Track your income, expenses, and budget goals — all in one place.
+        </Tagline>
+        <ButtonGroup>
+          <Button to="/login">Login</Button>
+          <Button to="/register">Register</Button>
+        </ButtonGroup>
+      </Container>
+
+      {/* Footer below the full-screen container */}
+      <Footer />
+    </>
   );
 }
