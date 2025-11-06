@@ -60,7 +60,7 @@ export default function Navbar(){
           <>
             <NavLink to="/dashboard">Dashboard</NavLink>
             <NavLink to="/transactions">Transactions</NavLink>
-            <NavLink to="/budget">Budget</NavLink>
+            <NavLink to="/budgets">Budget</NavLink>
             <NavLink to="/reports">Reports</NavLink>
             <PlainButton onClick={logout}>Logout</PlainButton>
           </>

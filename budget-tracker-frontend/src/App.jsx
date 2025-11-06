@@ -4,27 +4,22 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/common/ProtectedRoute";
-import Layout from "./components/common/Layout"; //add this import
+import Layout from "./components/common/Layout";
 import Welcome from "./pages/Welcome";
 import Transactions from "./pages/Transactions";
+import Budgets from "./pages/Budgets";
 
-// temporary placeholders for pages we’ll add later
-const Budget = () => <h2>Budget Page (Coming Soon)</h2>;
 const Reports = () => <h2>Reports Page (Coming Soon)</h2>;
 
 export default function App() {
   return (
     <Routes>
-      {/*Auth routes*/}
-      <Route path="/login" element={
-        <Login />} />
-      <Route path="/register" element={
-        <Register />} />
-
-      {/*Redirect root to dashboard */}
+      {/* Public routes */}
       <Route path="/" element={<Welcome />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
-      {/* Protected pages with layout */}
+      {/* Protected routes with layout */}
       <Route
         path="/dashboard"
         element={
@@ -48,11 +43,11 @@ export default function App() {
       />
 
       <Route
-        path="/budget"
+        path="/budgets"
         element={
           <ProtectedRoute>
             <Layout>
-              <Budget />
+              <Budgets />
             </Layout>
           </ProtectedRoute>
         }
@@ -68,18 +63,8 @@ export default function App() {
           </ProtectedRoute>
         }
       />
-      <Route 
-        path="/transactions"
-  element={
-    <ProtectedRoute>
-      <Layout>
-        <Transactions/>
-      </Layout>
-    </ProtectedRoute>
-  }
-  />
 
-      {/* 404 Fallback (optional) */}
+      {/* 404 fallback */}
       <Route path="*" element={<h2>404 - Page Not Found</h2>} />
     </Routes>
   );
