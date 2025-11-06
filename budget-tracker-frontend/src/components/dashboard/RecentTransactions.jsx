@@ -1,6 +1,8 @@
+// src/components/dashboard/RecentTransactions.jsx
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { fetchTransactions } from "../../api/transactions";
+import { Link } from "react-router-dom";
 
 const Wrap = styled.div`
   background: ${({ theme }) => theme.colors.card};
@@ -9,17 +11,27 @@ const Wrap = styled.div`
   box-shadow: ${({ theme }) => theme.shadow};
 `;
 
-// const TitleRow = styled.div`
-//   display:flex;
-//   align-items:center;
-//   justify-content:space-between;
-//   margin-bottom: 12px;
-// `;
+const TitleRow = styled.div`
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom: 12px;
+`;
 
 const Title = styled.h4`
   margin: 0;
   font-size: 16px;
   color: ${({ theme }) => theme.colors.primary};
+`;
+
+const ViewAllLink = styled(Link)`
+  font-size: 14px;
+  color: ${({ theme }) => theme.colors.primary};
+  text-decoration: none;
+  font-weight: 500;
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 const Table = styled.table`
@@ -57,7 +69,6 @@ export default function RecentTransactions({ max = 5 }) {
     setLoading(true);
     setErr(null);
     try {
-      // request most recent transactions - backend ordering assumed default (newest first)
       const res = await fetchTransactions({ limit: max, offset: 0 });
       const data = res.data?.results ?? res.data ?? [];
       setRows(data);
@@ -71,14 +82,14 @@ export default function RecentTransactions({ max = 5 }) {
 
   useEffect(() => {
     load();
-    // optionally, you could subscribe to an event or poll to refresh
   }, []);
 
   return (
     <Wrap>
-      {/* <TitleRow>
+      <TitleRow>
         <Title>Recent Transactions</Title>
-      </TitleRow> */}
+        <ViewAllLink to="/transactions">View All →</ViewAllLink>
+      </TitleRow>
 
       {loading ? (
         <Empty>Loading...</Empty>
@@ -102,7 +113,9 @@ export default function RecentTransactions({ max = 5 }) {
                 <Td>{t.date}</Td>
                 <Td style={{ textTransform: "capitalize" }}>{t.type}</Td>
                 <Td>{t.category}</Td>
-                <Td style={{ textAlign: "right" }}>{Number(t.amount).toFixed(2)}</Td>
+                <Td style={{ textAlign: "right" }}>
+                  ₹{Number(t.amount).toFixed(2)}
+                </Td>
               </tr>
             ))}
           </tbody>
