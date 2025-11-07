@@ -8,8 +8,7 @@ import Layout from "./components/common/Layout";
 import Welcome from "./pages/Welcome";
 import Transactions from "./pages/Transactions";
 import Budgets from "./pages/Budgets";
-
-const Reports = () => <h2>Reports Page (Coming Soon)</h2>;
+import Reports from "./pages/Reports";
 
 export default function App() {
   return (
