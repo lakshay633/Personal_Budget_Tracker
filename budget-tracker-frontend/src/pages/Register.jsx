@@ -19,7 +19,6 @@ const Card = styled.div`
   padding: 40px 36px;
   border-radius: 18px;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
-  animation: fadeIn 0.6s ease;
 `;
 
 const Title = styled.h2`
@@ -38,14 +37,6 @@ const Input = styled.input`
   border: 1px solid #d1d5db;
   font-size: 15px;
   background: #f9fafb;
-  transition: 0.2s ease;
-
-  &:focus {
-    outline: none;
-    border-color: ${({ theme }) => theme.colors.primary};
-    box-shadow: 0 0 0 2px rgba(78, 137, 174, 0.2);
-    background: #fff;
-  }
 `;
 
 const Button = styled.button`
@@ -58,7 +49,7 @@ const Button = styled.button`
   font-weight: 500;
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: 0.2s ease;
 
   &:hover {
     background: ${({ theme }) => theme.colors.accent};
@@ -68,23 +59,6 @@ const Button = styled.button`
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
-  }
-`;
-
-const FooterText = styled.div`
-  margin-top: 18px;
-  text-align: center;
-  font-size: 14px;
-  color: #6b7280;
-
-  a {
-    color: #4e89ae;
-    text-decoration: none;
-    font-weight: 500;
-
-    &:hover {
-      text-decoration: underline;
-    }
   }
 `;
 
@@ -99,29 +73,6 @@ const ErrorAlert = styled.div`
   text-align: left;
 `;
 
-// helper to turn various backend error shapes into a readable message
-function parseBackendError(data) {
-  if (!data) return "Registration failed. Please try again.";
-  if (typeof data === "string") return data;
-  if (Array.isArray(data)) return data.join(" ");
-  if (typeof data === "object") {
-    // collect messages from keys
-    const parts = [];
-    Object.entries(data).forEach(([key, val]) => {
-      if (!val) return;
-      let msg;
-      if (Array.isArray(val)) msg = val.join(" ");
-      else if (typeof val === "object") msg = JSON.stringify(val);
-      else msg = String(val);
-      // friendly key labels
-      const label = key === "non_field_errors" ? "" : `${key}: `;
-      parts.push(label + msg);
-    });
-    return parts.join(" ");
-  }
-  return "Registration failed. Please check your details.";
-}
-
 export default function Register() {
   const { register } = useAuth();
   const nav = useNavigate();
@@ -133,7 +84,7 @@ export default function Register() {
     password2: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(""); // persistent until user closes or changes
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -143,21 +94,42 @@ export default function Register() {
     e.preventDefault();
     setError("");
 
+    //Local frontend validations
+
+    if (!form.name.trim()) {
+      setError("Please enter your full name.");
+      return;
+    }
+
+    if (!form.email.includes("@") || !form.email.includes(".")) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
     if (form.password !== form.password2) {
       setError("Passwords do not match.");
+      return;
+    }
+
+    if (form.password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
+
+    if (/^\d+$/.test(form.password)) {
+      setError("Password cannot be entirely numeric.");
       return;
     }
 
     setLoading(true);
     try {
       await register(form);
+      alert("Registration successful! Please login.");
       nav("/login");
     } catch (err) {
-      console.error(err);
-      const data = err.response?.data;
-      const message = parseBackendError(data);
-      setError(message);
-    } finally {
+  console.error("Register error raw:", err);
+  setError("A user with this email already exists.");
+}finally {
       setLoading(false);
     }
   };
@@ -166,11 +138,7 @@ export default function Register() {
     <>
       <Container>
         <Card>
-          {error && (
-            <ErrorAlert role="alert" aria-live="polite">
-              {error}
-            </ErrorAlert>
-          )}
+          {error && <ErrorAlert>{error}</ErrorAlert>}
 
           <Title>Create an Account</Title>
           <form onSubmit={handleSubmit}>
@@ -194,7 +162,7 @@ export default function Register() {
               type="password"
               value={form.password}
               onChange={handleChange}
-              placeholder="Password"
+              placeholder="Password (min 8 characters)"
               required
             />
             <Input
@@ -209,9 +177,10 @@ export default function Register() {
               {loading ? "Creating Account..." : "Register"}
             </Button>
           </form>
-          <FooterText>
+
+          <p style={{ textAlign: "center", marginTop: 16 }}>
             Already have an account? <Link to="/login">Login</Link>
-          </FooterText>
+          </p>
         </Card>
       </Container>
       <Footer />

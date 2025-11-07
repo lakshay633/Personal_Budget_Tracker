@@ -1,4 +1,3 @@
-// src/pages/Login.jsx
 import React, { useState } from "react";
 import styled from "styled-components";
 import useAuth from "../hooks/useAuth";
@@ -24,7 +23,12 @@ const Card = styled.div`
   animation: fadeIn 0.6s ease;
 `;
 
-const Title = styled.h2` margin-bottom: 20px; color: ${({ theme }) => theme.colors.primary}; text-align:center; `;
+const Title = styled.h2`
+  margin-bottom: 20px;
+  color: ${({ theme }) => theme.colors.primary};
+  text-align:center;
+`;
+
 const Input = styled.input`
   width:100%;
   margin-bottom: 16px;
@@ -34,6 +38,7 @@ const Input = styled.input`
   font-size: 15px;
   &:focus { outline: none; border-color: ${({ theme }) => theme.colors.primary}; box-shadow: 0 0 0 2px rgba(78,137,174,0.12); }
 `;
+
 const Button = styled.button`
   width:100%;
   padding: 12px;
@@ -46,7 +51,14 @@ const Button = styled.button`
   transition: all 0.2s ease;
   &:hover { background: ${({ theme }) => theme.colors.accent}; transform: translateY(-1px); }
 `;
-const FooterText = styled.div` margin-top: 16px; text-align:center; font-size:14px; color:#666; a{ color:#4e89ae; text-decoration:none; &:hover{text-decoration:underline;} }`;
+
+const FooterText = styled.div`
+  margin-top: 16px;
+  text-align:center;
+  font-size:14px;
+  color:#666;
+  a{ color:#4e89ae; text-decoration:none; &:hover{text-decoration:underline;} }
+`;
 
 /* Error alert + close */
 const ErrorAlert = styled.div`
@@ -73,30 +85,7 @@ const CloseBtn = styled.button`
   line-height: 1;
 `;
 
-/* Helper to format backend errors into a readable string */
-function parseBackendError(data) {
-  if (!data) return "Login failed. Please try again.";
-  if (typeof data === "string") return data;
-  if (Array.isArray(data)) return data.join(" ");
-  if (typeof data === "object") {
-    // common DRF patterns: { "detail": "..." } or { "non_field_errors": ["..."] } or field errors
-    if (data.detail) return String(data.detail);
-    if (data.non_field_errors) return Array.isArray(data.non_field_errors) ? data.non_field_errors.join(" ") : String(data.non_field_errors);
-    // collect field errors
-    const parts = [];
-    Object.entries(data).forEach(([key, val]) => {
-      if (!val) return;
-      let msg;
-      if (Array.isArray(val)) msg = val.join(" ");
-      else if (typeof val === "object") msg = JSON.stringify(val);
-      else msg = String(val);
-      const label = key === "non_field_errors" ? "" : `${key}: `;
-      parts.push(label + msg);
-    });
-    if (parts.length) return parts.join(" ");
-  }
-  return "Login failed. Please check your credentials.";
-}
+
 
 export default function Login() {
   const { login } = useAuth();
@@ -106,28 +95,28 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(""); // persistent until user closes
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(""); // clear previous
-    try {
-      await login({ email, password });
-      nav("/dashboard");
-    } catch (err) {
-      // log for debugging
-      console.error("Login error raw:", err);
-      const data = err?.response?.data;
-      // network error / no response
-      if (!err.response) {
-        setError("Network error: please check your connection.");
-      } else {
-        const msg = parseBackendError(data);
-        setError(msg);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+  setLoading(true);
+
+  try {
+    await login({ email, password });
+    nav("/dashboard");
+  } catch (err) {
+  console.error("Login error raw:", err);
+
+  if (err.message?.includes("Network")) {
+    setError("Network error: please check your connection.");
+  } else {
+    setError("Invalid credentials. Please check your email and password.");
+  }
+}
+finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <>
