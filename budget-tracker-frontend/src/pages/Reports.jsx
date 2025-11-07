@@ -226,7 +226,7 @@ export default function Reports() {
   return (
     <Container>
       <TitleRow>
-        <Title>Financial Reports {computedFallback ? "(computed from transactions)" : ""}</Title>
+        <Title>Financial Reports</Title>{/*computedFallback ? "(computed from transactions)" : ""*/}
       </TitleRow>
 
       <SummaryGrid>
