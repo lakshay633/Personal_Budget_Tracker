@@ -4,64 +4,63 @@ import useAuth from "../hooks/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 import Footer from "../components/common/Footer";
 
+/* Styled components (matched to Login.jsx) */
 const Container = styled.div`
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   background: linear-gradient(135deg, #4e89ae, #ed6663);
   padding: 20px;
 `;
 
 const Card = styled.div`
   width: 420px;
-  background: #ffffff;
-  padding: 40px 36px;
-  border-radius: 18px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+  background: ${({ theme }) => theme.colors.card};
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.6s ease;
 `;
 
 const Title = styled.h2`
-  margin: 0 0 25px;
+  margin-bottom: 20px;
   color: ${({ theme }) => theme.colors.primary};
-  text-align: center;
-  font-weight: 600;
-  font-size: 26px;
+  text-align:center;
 `;
 
 const Input = styled.input`
-  width: 100%;
-  margin-bottom: 18px;
-  padding: 12px 14px;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
+  width:100%;
+  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
   font-size: 15px;
-  background: #f9fafb;
+  &:focus { outline: none; border-color: ${({ theme }) => theme.colors.primary}; box-shadow: 0 0 0 2px rgba(78,137,174,0.12); }
 `;
 
 const Button = styled.button`
-  width: 100%;
+  width:100%;
   padding: 12px;
   border: none;
   background: ${({ theme }) => theme.colors.primary};
   color: white;
   font-size: 16px;
-  font-weight: 500;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: 0.2s ease;
-
-  &:hover {
-    background: ${({ theme }) => theme.colors.accent};
-    transform: translateY(-1px);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+  transition: all 0.2s ease;
+  &:hover { background: ${({ theme }) => theme.colors.accent}; transform: translateY(-1px); }
 `;
 
+const FooterText = styled.div`
+  margin-top: 16px;
+  text-align:center;
+  font-size:14px;
+  color:#666;
+  a{ color:#4e89ae; text-decoration:none; &:hover{text-decoration:underline;} }
+`;
+
+/* Error alert + close (same as Login.jsx) */
 const ErrorAlert = styled.div`
   background: #fee2e2;
   color: #b91c1c;
@@ -71,6 +70,19 @@ const ErrorAlert = styled.div`
   font-size: 14px;
   margin-bottom: 16px;
   text-align: left;
+  position: relative;
+`;
+
+const CloseBtn = styled.button`
+  position: absolute;
+  right: 8px;
+  top: 6px;
+  background: transparent;
+  border: none;
+  color: #7f1d1d;
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
 `;
 
 export default function Register() {
@@ -84,7 +96,7 @@ export default function Register() {
     password2: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(""); // persistent until user closes or changes
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -94,8 +106,7 @@ export default function Register() {
     e.preventDefault();
     setError("");
 
-    //Local frontend validations
-
+    // Local frontend validations
     if (!form.name.trim()) {
       setError("Please enter your full name.");
       return;
@@ -127,9 +138,14 @@ export default function Register() {
       alert("Registration successful! Please login.");
       nav("/login");
     } catch (err) {
-  console.error("Register error raw:", err);
-  setError("A user with this email already exists.");
-}finally {
+      console.error("Register error raw:", err);
+      // Simplified: show existing-user message (or network issue)
+      if (err?.message?.includes("Network")) {
+        setError("Network error: please check your connection.");
+      } else {
+        setError("A user with this email already exists.");
+      }
+    } finally {
       setLoading(false);
     }
   };
@@ -138,7 +154,12 @@ export default function Register() {
     <>
       <Container>
         <Card>
-          {error && <ErrorAlert>{error}</ErrorAlert>}
+          {error && (
+            <ErrorAlert role="alert" aria-live="polite">
+              {error}
+              <CloseBtn aria-label="Dismiss error" onClick={() => setError("")}>×</CloseBtn>
+            </ErrorAlert>
+          )}
 
           <Title>Create an Account</Title>
           <form onSubmit={handleSubmit}>
@@ -178,9 +199,9 @@ export default function Register() {
             </Button>
           </form>
 
-          <p style={{ textAlign: "center", marginTop: 16 }}>
+          <FooterText>
             Already have an account? <Link to="/login">Login</Link>
-          </p>
+          </FooterText>
         </Card>
       </Container>
       <Footer />
