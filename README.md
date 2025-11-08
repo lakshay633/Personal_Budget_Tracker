@@ -46,9 +46,12 @@ Personal_Budget_Tracker/
 │
 ├── budget-tracker-frontend/      # React frontend
 │   ├── src/
+│   │   ├── api/                  
 │   │   ├── components/           # React UI components
-│   │   ├── pages/                # Dashboard, Reports, Login, Register
-│   │   └── App.js
+│   │   ├── hooks/                # Custom React hooks
+│   │   ├── pages/                # Dashboard, Reports, Login, Register and other pages
+│   │   ├── styles/               # CSS styles
+│   │   └── App.jsx
 │   └── package.json
 │
 └── README.md
@@ -113,11 +116,11 @@ Personal_Budget_Tracker/
 
 3. **Start the React development server:**
    ```bash
-   npm start
+   npm run dev
    ```
 
    App will be live at:  
-   👉 `http://localhost:3000/`
+   👉 `http://localhost:5173/`
 
 ---
 
