@@ -1,4 +1,3 @@
-// src/api/transactions.js
 import api from "./axios";
 
 /*
@@ -10,17 +9,25 @@ import api from "./axios";
  DELETE /transactions/:id/    -> delete
 */
 
+//Transaction API calls
 export const fetchTransactions = (params = {}) =>
+  //Make GET request to fetch transactions with optional query parameters
   api.get("/transactions/", { params });
 
+  //Create a new transaction
 export const createTransaction = (payload) =>
+  //Make POST request to create transaction
   api.post("/transactions/", payload);
 
+  //Update an existing transaction by ID
 export const updateTransaction = (id, payload) =>
+  //Make PUT request to update transaction
   api.put(`/transactions/${id}/`, payload);
 
-export const deleteTransaction = (id) =>
+//Delete a transaction by ID
+  export const deleteTransaction = (id) =>
   api.delete(`/transactions/${id}/`);
 
+  //Retrieve a single transaction by ID
 export const getTransaction = (id) =>
   api.get(`/transactions/${id}/`);
