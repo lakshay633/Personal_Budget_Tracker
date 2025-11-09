@@ -31,21 +31,21 @@ const Label = styled.div`
   color: ${({ theme }) => theme.colors.muted};
 `;
 
-const Controls = styled.div`
-  display:flex;
-  gap: 8px;
-  align-items:center;
-  justify-content:flex-end;
-`;
+// const Controls = styled.div`
+//   display:flex;
+//   gap: 8px;
+//   align-items:center;
+//   justify-content:flex-end;
+// `;
 
-const Button = styled.button`
-  background: ${({ theme, primary }) => (primary ? theme.colors.primary : "#efefef")};
-  color: ${({ primary }) => (primary ? "white" : "#111")};
-  border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-`;
+// const Button = styled.button`
+//   background: ${({ theme, primary }) => (primary ? theme.colors.primary : "#efefef")};
+//   color: ${({ primary }) => (primary ? "white" : "#111")};
+//   border: none;
+//   padding: 8px 12px;
+//   border-radius: 8px;
+//   cursor: pointer;
+// `;
 
 export default function SummaryCards({ onOpenNew }) {
   const [loading, setLoading] = useState(false);
@@ -94,9 +94,6 @@ export default function SummaryCards({ onOpenNew }) {
         <Card>
           <Label>Balance</Label>
           <Value color={balance >= 0 ? "#0ea5a4" : "#ef4444"}>₹{balance.toFixed(2)}</Value>
-          {/* <Controls>
-            <Button onClick={() => { setShowForm(true); if (onOpenNew) onOpenNew(); }}>+ New</Button>
-          </Controls> */}
         </Card>
       </Wrap>
 

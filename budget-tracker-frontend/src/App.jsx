@@ -3,9 +3,9 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
-import ProtectedRoute from "./components/common/ProtectedRoute";
-import Layout from "./components/common/Layout";
-import Welcome from "./pages/Welcome";
+import ProtectedRoute from "./components/common/ProtectedRoute"; //Restricts access to authenticated users only..
+import Layout from "./components/common/Layout"; //Common layout wrapper for protected pages..
+import Welcome from "./pages/Welcome"; //Public welcome page..
 import Transactions from "./pages/Transactions";
 import Budgets from "./pages/Budgets";
 import Reports from "./pages/Reports";
@@ -13,12 +13,13 @@ import Reports from "./pages/Reports";
 export default function App() {
   return (
     <Routes>
-      {/* Public routes */}
+      {/*Public routes*/}
+      {/*Landing route(Welcome page) for public*/}
       <Route path="/" element={<Welcome />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      {/* Protected routes with layout */}
+      {/*Protected routes with layout(require authentication)*/}
       <Route
         path="/dashboard"
         element={
@@ -29,7 +30,7 @@ export default function App() {
           </ProtectedRoute>
         }
       />
-
+      {/*Transactions page*/}
       <Route
         path="/transactions"
         element={
@@ -40,7 +41,7 @@ export default function App() {
           </ProtectedRoute>
         }
       />
-
+      {/*Budgets page*/}
       <Route
         path="/budgets"
         element={
@@ -51,7 +52,7 @@ export default function App() {
           </ProtectedRoute>
         }
       />
-
+      {/*Reports page*/}
       <Route
         path="/reports"
         element={
@@ -63,7 +64,7 @@ export default function App() {
         }
       />
 
-      {/* 404 fallback */}
+      {/*404 fallback route*/}
       <Route path="*" element={<h2>404 - Page Not Found</h2>} />
     </Routes>
   );
