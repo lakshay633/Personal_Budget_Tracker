@@ -1,4 +1,3 @@
-// src/components/dashboard/RecentTransactions.jsx
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { fetchTransactions } from "../../api/transactions";
@@ -18,11 +17,6 @@ const TitleRow = styled.div`
   margin-bottom: 12px;
 `;
 
-// const Title = styled.h4`
-//   margin: 0;
-//   font-size: 16px;
-//   color: ${({ theme }) => theme.colors.primary};
-// `;
 
 const ViewAllLink = styled(Link)`
   font-size: 14px;
@@ -69,8 +63,11 @@ export default function RecentTransactions({ max = 5 }) {
     setLoading(true);
     setErr(null);
     try {
+      //Only fetch 'max' recent transactions
       const res = await fetchTransactions({ limit: max, offset: 0 });
+      //Handle both paginated and non-paginated responses, Always get an array: results → data → []
       const data = res.data?.results ?? res.data ?? [];
+      //Update state with fetched transactions
       setRows(data);
     } catch (e) {
       console.error("RecentTransactions load error:", e);
@@ -80,6 +77,7 @@ export default function RecentTransactions({ max = 5 }) {
     }
   };
 
+  //Load recent transactions on component mount once
   useEffect(() => {
     load();
   }, []);

@@ -1,4 +1,3 @@
-// src/components/transactions/TransactionForm.jsx
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 
@@ -47,33 +46,41 @@ const Button = styled.button`
   color: ${({ primary }) => (primary ? "white" : "#111")};
 `;
 
+//TransactionForm component for adding/editing transactions, initial for editing existing transaction
 export default function TransactionForm({ initial = null, onClose, onSave }) {
   const [form, setForm] = useState({
     type: "expense",
     category: "",
     amount: "",
+    //Using slice to take the date in YYYY-MM-DD format
     date: new Date().toISOString().slice(0, 10),
   });
 
+  //Populate form if editing an existing transaction, if there is initial data
   useEffect(() => {
+    //If initial data is provided, set form state to that data
     if (initial) {
       setForm({
+        //Set each field, defaulting if missing
         type: initial.type || "expense",
         category: initial.category || "",
         amount: initial.amount || "",
         date: initial.date || new Date().toISOString().slice(0, 10),
       });
     }
-  }, [initial]);
+  }, [initial]); //Run when initial changes
 
+  //Handle input changes for all form fields
   const handleChange = (e) => {
+    //Update form state on input change
     const { name, value } = e.target;
     setForm((s) => ({ ...s, [name]: value }));
   };
 
+  //Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    // basic validation
+    //Basic validation
     if (!form.amount || Number(form.amount) <= 0) {
       alert("Enter a valid amount");
       return;
@@ -82,12 +89,14 @@ export default function TransactionForm({ initial = null, onClose, onSave }) {
       alert("Enter a category");
       return;
     }
+    //Call onSave prop with form data
     onSave(form);
   };
 
   return (
     <Backdrop onClick={onClose}>
-      <Card onClick={(e) => e.stopPropagation()}>
+      {/*Transaction form*/}
+      <Card onClick={(e) => e.stopPropagation()}>{/*Prevent click propagation to backdrop to close*/}
         <Title>{initial ? "Edit Transaction" : "New Transaction"}</Title>
         <form onSubmit={handleSubmit}>
           <Row>

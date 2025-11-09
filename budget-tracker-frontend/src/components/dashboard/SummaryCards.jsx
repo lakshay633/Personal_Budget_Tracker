@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { fetchTransactions } from "../../api/transactions";
-import TransactionForm from "../transactions/TransactionForm";
 
 const Wrap = styled.div`
   display: grid;
@@ -32,26 +31,32 @@ const Label = styled.div`
 `;
 
 
-
-export default function SummaryCards({ onOpenNew }) {
+//SummaryCards component to show income, expense, balance summary cards..
+export default function SummaryCards() {
+  //State variables
   const [loading, setLoading] = useState(false);
+  //Income, expense, balance
   const [income, setIncome] = useState(0);
   const [expense, setExpense] = useState(0);
   const [balance, setBalance] = useState(0);
-  const [showForm, setShowForm] = useState(false);
 
+  //Load summary data
   const load = async () => {
     setLoading(true);
     try {
-      // fetch all transactions - if many items you may want an aggregate endpoint later
-      const res = await fetchTransactions({ limit: 1000 }); // temporary large limit
+      //fetch all transactions
+      const res = await fetchTransactions({ limit: 1000 });
+      //Handle both paginated and non-paginated responses, Always get an array: results → data → []
       const data = res.data.results ?? res.data ?? [];
+      //Calculate income, expense, balance
       let inc = 0, exp = 0;
+      //Iterate through transactions
       for (const t of data) {
         const amt = Number(t.amount) || 0;
         if ((t.type || "").toLowerCase() === "income") inc += amt;
         else exp += amt;
       }
+      //Update state
       setIncome(inc);
       setExpense(exp);
       setBalance(inc - exp);
@@ -62,6 +67,7 @@ export default function SummaryCards({ onOpenNew }) {
     }
   };
 
+  //Load summary on component mount once
   useEffect(() => { load(); }, []);
 
   return (
@@ -82,18 +88,6 @@ export default function SummaryCards({ onOpenNew }) {
           <Value color={balance >= 0 ? "#0ea5a4" : "#ef4444"}>₹{balance.toFixed(2)}</Value>
         </Card>
       </Wrap>
-
-      {showForm && (
-        <TransactionForm
-          onClose={() => { setShowForm(false); load(); }}
-          onSave={async (form) => {
-            // delegate adding to TransactionForm consumer (TransactionForm will call parent onSave)
-            // We will assume parent saves through API; here we just close and reload
-            setShowForm(false);
-            await load();
-          }}
-        />
-      )}
     </>
   );
 }

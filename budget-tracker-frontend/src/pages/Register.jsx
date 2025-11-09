@@ -4,7 +4,7 @@ import useAuth from "../hooks/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 import Footer from "../components/common/Footer";
 
-/* Styled components (matched to Login.jsx) */
+//Styled components
 const Container = styled.div`
   min-height: 100vh;
   display:flex;
@@ -14,6 +14,7 @@ const Container = styled.div`
   padding: 20px;
 `;
 
+//Card styling for the registration form
 const Card = styled.div`
   width: 420px;
   background: ${({ theme }) => theme.colors.card};
@@ -23,12 +24,14 @@ const Card = styled.div`
   animation: fadeIn 0.6s ease;
 `;
 
+//Title styling for the form
 const Title = styled.h2`
   margin-bottom: 20px;
   color: ${({ theme }) => theme.colors.primary};
   text-align:center;
 `;
 
+//Input field styling
 const Input = styled.input`
   width:100%;
   margin-bottom: 16px;
@@ -39,6 +42,7 @@ const Input = styled.input`
   &:focus { outline: none; border-color: ${({ theme }) => theme.colors.primary}; box-shadow: 0 0 0 2px rgba(78,137,174,0.12); }
 `;
 
+//Button styling for form submission
 const Button = styled.button`
   width:100%;
   padding: 12px;
@@ -60,7 +64,7 @@ const FooterText = styled.div`
   a{ color:#4e89ae; text-decoration:none; &:hover{text-decoration:underline;} }
 `;
 
-/* Error alert + close (same as Login.jsx) */
+//Error alert + close
 const ErrorAlert = styled.div`
   background: #fee2e2;
   color: #b91c1c;
@@ -85,28 +89,36 @@ const CloseBtn = styled.button`
   line-height: 1;
 `;
 
+//Register page component
 export default function Register() {
+  //Get register function from useAuth hook
   const { register } = useAuth();
   const nav = useNavigate();
 
+  //Local state for form inputs and status
   const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
     password2: "",
   });
+  //State for loading indicator
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(""); // persistent until user closes or changes
+  const [error, setError] = useState("");
 
+  //Input change handler
   const handleChange = (e) => {
+    //Update form state on input change and takes all the previous values
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  //Form submission handler
   const handleSubmit = async (e) => {
+    //Prevent default form submission behavior
     e.preventDefault();
     setError("");
 
-    // Local frontend validations
+    //Validation checks..
     if (!form.name.trim()) {
       setError("Please enter your full name.");
       return;
@@ -134,12 +146,13 @@ export default function Register() {
 
     setLoading(true);
     try {
+      //Attempt registration
       await register(form);
       alert("Registration successful! Please login.");
       nav("/login");
     } catch (err) {
       console.error("Register error raw:", err);
-      // Simplified: show existing-user message (or network issue)
+      //Set user-friendly error message
       if (err?.message?.includes("Network")) {
         setError("Network error: please check your connection.");
       } else {
