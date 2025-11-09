@@ -87,7 +87,7 @@ export default function RecentTransactions({ max = 5 }) {
   return (
     <Wrap>
       <TitleRow>
-        <Title>Recent Transactions</Title>
+        {/* <Title>Recent Transactions</Title> */}
         <ViewAllLink to="/transactions">View All →</ViewAllLink>
       </TitleRow>
 
