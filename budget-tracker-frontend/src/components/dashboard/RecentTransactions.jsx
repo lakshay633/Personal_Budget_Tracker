@@ -18,11 +18,11 @@ const TitleRow = styled.div`
   margin-bottom: 12px;
 `;
 
-const Title = styled.h4`
-  margin: 0;
-  font-size: 16px;
-  color: ${({ theme }) => theme.colors.primary};
-`;
+// const Title = styled.h4`
+//   margin: 0;
+//   font-size: 16px;
+//   color: ${({ theme }) => theme.colors.primary};
+// `;
 
 const ViewAllLink = styled(Link)`
   font-size: 14px;

@@ -31,21 +31,7 @@ const Label = styled.div`
   color: ${({ theme }) => theme.colors.muted};
 `;
 
-// const Controls = styled.div`
-//   display:flex;
-//   gap: 8px;
-//   align-items:center;
-//   justify-content:flex-end;
-// `;
 
-// const Button = styled.button`
-//   background: ${({ theme, primary }) => (primary ? theme.colors.primary : "#efefef")};
-//   color: ${({ primary }) => (primary ? "white" : "#111")};
-//   border: none;
-//   padding: 8px 12px;
-//   border-radius: 8px;
-//   cursor: pointer;
-// `;
 
 export default function SummaryCards({ onOpenNew }) {
   const [loading, setLoading] = useState(false);

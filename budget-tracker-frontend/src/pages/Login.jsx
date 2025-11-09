@@ -88,24 +88,36 @@ const CloseBtn = styled.button`
 
 
 export default function Login() {
+  //Get login function from authentication hook
   const { login } = useAuth();
+  //Router navigation hook
   const nav = useNavigate();
+  //Local state for form inputs and status
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  //State for loading indicator
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(""); // persistent until user closes
+  //State for error messages
+  const [error, setError] = useState(""); 
 
+
+  //Form submission handler
 const handleSubmit = async (e) => {
+  //Prevent default form submission behavior..
   e.preventDefault();
   setError("");
+  //Set loading state
   setLoading(true);
 
+  //Attempt login
   try {
     await login({ email, password });
+    //On success, navigate to dashboard
     nav("/dashboard");
   } catch (err) {
   console.error("Login error raw:", err);
 
+  //Set user-friendly error messages based on error type
   if (err.message?.includes("Network")) {
     setError("Network error: please check your connection.");
   } else {
@@ -128,7 +140,7 @@ finally {
               <CloseBtn aria-label="Dismiss error" onClick={() => setError("")}>×</CloseBtn>
             </ErrorAlert>
           )}
-
+          {/*Login form*/}
           <Title>Login to your account</Title>
           <form onSubmit={handleSubmit}>
             <Input
