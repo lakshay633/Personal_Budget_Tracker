@@ -23,34 +23,43 @@ const Button = styled.button`
 `;
 
 export default function TransactionList() {
+  //States
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // filters & pagination
+  //filters and pagination
   const [typeFilter, setTypeFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
-  const [search, setSearch] = useState("");
+  // const [search, setSearch] = useState("");
+  //Pagination
   const [limit] = useState(20);
   const [offset, setOffset] = useState(0);
   const [count, setCount] = useState(0);
 
-  // form modal
+  //Transaction form visibility and editing state
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
 
+  //Load transactions from API with filters and pagination, if there are any otherwise load all the transactions 
   const load = async () => {
+    //Set loading state
     setLoading(true);
     try {
+      //Build params
       const params = { limit, offset };
+      //Add filters if any
       if (typeFilter) params.type = typeFilter;
       if (categoryFilter) params.category = categoryFilter;
-      if (search) params.search = search;
+      // if (search) params.search = search;
+      //Fetch transactions
       const res = await fetchTransactions(params);
-      // backend pagination may use results + count or just list; handle both
+      //Set transactions and count based on response
       if (res.data.results) {
+        //Paginated response
         setTransactions(res.data.results);
         setCount(res.data.count || res.data.results.length);
       } else {
+        //Non-paginated response
         setTransactions(res.data);
         setCount(res.data.length);
       }
@@ -60,11 +69,14 @@ export default function TransactionList() {
     } finally { setLoading(false); }
   };
 
+  //Load transactions on component mount once and when filters/pagination change
   useEffect(() => { load(); }, [offset, typeFilter, categoryFilter]);
 
   const handleAdd = async (payload) => {
     try {
+      //Add transaction
       await createTransaction(payload);
+      //Close form and reload list
       setShowForm(false);
       setOffset(0);
       load();
@@ -76,7 +88,9 @@ export default function TransactionList() {
 
   const handleUpdate = async (payload) => {
     try {
+      //Update transaction
       await updateTransaction(editing.id, payload);
+      //Close form and reload list
       setShowForm(false);
       setEditing(null);
       load();
@@ -87,8 +101,10 @@ export default function TransactionList() {
   };
 
   const handleDelete = async (id) => {
+    //Confirm deletion
     if (!confirm("Delete this transaction?")) return;
     try {
+      //Delete transaction
       await deleteTransaction(id);
       load();
     } catch (err) {
@@ -107,7 +123,7 @@ export default function TransactionList() {
           <option value="expense">Expense</option>
         </Select>
         <Input placeholder="Category" value={categoryFilter} onChange={(e)=>setCategoryFilter(e.target.value)} />
-        <Input placeholder="Search notes/ category" value={search} onChange={(e)=>setSearch(e.target.value)} />
+        {/* <Input placeholder="Search notes/ category" value={search} onChange={(e)=>setSearch(e.target.value)} /> */}
         <Button onClick={()=>{ setOffset(0); load(); }}>Apply</Button>
       </Toolbar>
 

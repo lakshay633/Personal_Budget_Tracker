@@ -30,11 +30,14 @@ const Button = styled.button`
   color: ${({ primary }) => (primary ? "white" : "#111")};
 `;
 
+//BudgetForm component for adding/editing budgets, initial for editing existing budget
 export default function BudgetForm({ initial = null, onClose, onSave }) {
+  //Initial state for the form
   const now = new Date();
   const [form, setForm] = useState({
     category: "",
     amount: "",
+    //To get the current month and year in two-digit and four-digit format respectively
     month: String(now.getMonth() + 1).padStart(2, "0"),
     year: String(now.getFullYear()),
   });
@@ -49,13 +52,16 @@ export default function BudgetForm({ initial = null, onClose, onSave }) {
     });
   }, [initial]);
 
+  //Handle input changes for all form fields
   const handleChange = (e) => setForm((s) => ({ ...s, [e.target.name]: e.target.value }));
 
+  //Form submission handler with validation
   const submit = (e) => {
     e.preventDefault();
     setError("");
     if (!form.category) { setError("Enter category"); return; }
     if (!form.amount || Number(form.amount) <= 0) { setError("Enter valid amount"); return; }
+    //Call onSave prop with form data
     onSave({
       category: form.category,
       amount: Number(form.amount),
@@ -66,6 +72,7 @@ export default function BudgetForm({ initial = null, onClose, onSave }) {
 
   return (
     <Backdrop onClick={onClose}>
+      {/*Budget form*/}
       <Card onClick={(ev) => ev.stopPropagation()}>
         <Title>{initial ? "Edit Budget" : "New Budget"}</Title>
         {error && <div style={{ color: "red", marginBottom: 8 }}>{error}</div>}

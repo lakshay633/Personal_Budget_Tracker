@@ -65,6 +65,7 @@ export default function TransactionForm({ initial = null, onClose, onSave }) {
         type: initial.type || "expense",
         category: initial.category || "",
         amount: initial.amount || "",
+        //Using slice to take the date in YYYY-MM-DD format
         date: initial.date || new Date().toISOString().slice(0, 10),
       });
     }

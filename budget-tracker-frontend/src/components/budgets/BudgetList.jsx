@@ -76,26 +76,33 @@ const OverBadge = styled.span`
   font-size: 13px;
 `;
 
+//BudgetList component
 export default function BudgetList() {
   const [budgets, setBudgets] = useState([]);
-  const [transactions, setTransactions] = useState([]); // used to compute spent
+  //Transactions to compute spent amounts
+  const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [editing, setEditing] = useState(null);
   const [error, setError] = useState(null);
 
-  // Load budgets and recent transactions (we fetch a reasonably large set to compute monthly sums)
+  //Load budgets and recent transactions
   const loadAll = async () => {
     setLoading(true);
     setError(null);
     try {
+      //Fetch budgets
       const bdata = await getBudgets();
+      //Handle paginated or non-paginated response, Always get an array: results → data → []
       const budgetItems = Array.isArray(bdata) ? bdata : (bdata.results ?? []);
+      //Set budgets state
       setBudgets(budgetItems);
 
-      // fetch transactions: get many records (client-side filter later). Using limit 1000 as pragmatic default
+      //Fetch all transactions to compute spent amounts
       const txRes = await fetchTransactions({ limit: 1000, offset: 0 });
+      //Handle both paginated and non-paginated responses, Always get an array: results → data → []
       const txItems = txRes.data?.results ?? txRes.data ?? [];
+      //Set transactions state
       setTransactions(txItems);
     } catch (err) {
       console.error("Failed to load budgets/transactions", err);
@@ -105,27 +112,31 @@ export default function BudgetList() {
     }
   };
 
+  //Load budgets and transactions on component mount once
   useEffect(() => { loadAll(); }, []);
 
-  // compute spent for a budget: sums expense transactions matching month, year, and category (case-insensitive)
+  //Compute spent amount for a budget based on its category, month, year
   const computeSpent = (budget) => {
     const cat = (budget.category || "").toLowerCase().trim();
     const m = Number(budget.month);
     const y = Number(budget.year);
-    // sum only expense type transactions (if your app treats negative amounts for expenses, adapt accordingly)
+    //Sum amounts from transactions matching category, month, year
     let sum = 0;
+    //Iterate through transactions
     for (const t of transactions) {
-      // dates might be "YYYY-MM-DD" or datetime — parse month/year safely
+      //Date parsing to get month and year
       const dateStr = t.date || t.created_at || t.timestamp || "";
       let txMonth = null, txYear = null;
+      //Date parsing  
       if (dateStr) {
         try {
+          //Month and year from Date object
           const d = new Date(dateStr);
           if (!isNaN(d)) {
             txMonth = d.getMonth() + 1;
             txYear = d.getFullYear();
           } else {
-            // fallback: parse YYYY-MM-DD
+            //Fallback parsing for YYYY-MM-DD format
             const parts = String(dateStr).split("-");
             if (parts.length >= 2) {
               txYear = Number(parts[0]);
@@ -133,55 +144,65 @@ export default function BudgetList() {
             }
           }
         } catch {
-          // ignore
+          //ignore
         }
       }
-
+      //Skip if month/year don't match
       if (txMonth !== m || txYear !== y) continue;
-
+      //Category match
       const tcat = (t.category || "").toLowerCase();
-      // if budget.category is empty, count all matching month/year (unlikely)
       const catMatches = cat === "" ? true : tcat.includes(cat);
       const isExpense = (t.type || "").toLowerCase() === "expense";
       if (catMatches && isExpense) {
+        //Add amount to sum
         const amt = Number(t.amount) || 0;
         sum += amt;
       }
     }
+    //Return sum
     return sum;
   };
 
-  // handlers for create/update/delete — update state and reload necessary transactions
+  //Create budget
   const handleCreate = async (payload) => {
     try {
+      //Create budget
       const created = await createBudget(payload);
+      //Add created budget to state
       const item = created && created.id ? created : (created.results ? created.results[0] : created);
+      //Update state
       setBudgets((p) => [item, ...p]);
+      //Close form
       setShowCreate(false);
-      // optionally reload transactions if budgets creation affects anything — not necessary
     } catch (err) {
       console.error("Create budget failed", err);
       setError(err.response?.data?.detail || "Failed to create budget.");
     }
   };
 
+  //Update budget
   const handleUpdate = async (id, payload) => {
     try {
       const updated = await updateBudget(id, payload);
+      //Update budget in state
       const item = updated && updated.id ? updated : updated;
+      //If the id matches, update it in state
       setBudgets((p) => p.map((b) => (b.id === item.id ? item : b)));
+      //Close edit modal
       setEditing(null);
-      // reload transactions might be unnecessary
     } catch (err) {
       console.error("Update failed", err);
       setError(err.response?.data?.detail || "Failed to update budget.");
     }
   };
 
+  //Delete budget
   const handleDelete = async (id) => {
+    //Confirm deletion
     if (!confirm("Delete this budget?")) return;
     try {
       await deleteBudget(id);
+      //If the deletion is successful, remove from state by creating a new array without the deleted budget
       setBudgets((p) => p.filter((b) => b.id !== id));
     } catch (err) {
       console.error("Delete failed", err);
@@ -212,9 +233,11 @@ export default function BudgetList() {
             </tr>
           </thead>
           <tbody>
+            {/*Loop through budgets and display them*/}
             {budgets.map((b) => {
               const spent = computeSpent(b);
               const budgetAmt = Number(b.amount) || 0;
+              {/*Compute progress percentage*/}
               const pct = budgetAmt > 0 ? (spent / budgetAmt) * 100 : 0;
               const over = spent > budgetAmt;
               return (

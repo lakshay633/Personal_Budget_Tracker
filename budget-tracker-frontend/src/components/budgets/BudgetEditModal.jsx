@@ -38,21 +38,29 @@ const Button = styled.button`
   cursor: pointer;
 `;
 
+//BudgetEditModal component for editing an existing budget
 export default function BudgetEditModal({ budget, onClose, onSave }) {
+  //Initial state for the form
   const [form, setForm] = useState({ ...budget });
+  //Saving state
   const [saving, setSaving] = useState(false);
-
+  //Populate form when budget prop changes
   useEffect(() => { setForm({ ...budget }); }, [budget]);
-
+  
+  //Handle input changes for all form fields
   const handleChange = (e) => setForm((s) => ({ ...s, [e.target.name]: e.target.value }));
 
+  //Form submission handler with validation
   const handleSubmit = async (e) => {
     e.preventDefault();
+    //Basic validation
     setSaving(true);
     try {
-      // keep existing behaviour: call API here and return the updated object via onSave
+      //Call API to update budget
       const updated = await updateBudget(budget.id, form);
+      //Notify parent of the update
       onSave(updated);
+      //Close the modal
       onClose();
     } catch (err) {
       console.error("Update budget failed", err);
