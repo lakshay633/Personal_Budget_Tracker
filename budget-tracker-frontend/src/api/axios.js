@@ -52,8 +52,8 @@ api.interceptors.response.use(
       "/",              // home or landing page 
       "/register/",
       "/tokenrefresh/",
-      "/api/token/",    
-      "/api/token/refresh/",
+      // "/api/token/",    
+      // "/api/token/refresh/",
       "/login",
     ];
 
