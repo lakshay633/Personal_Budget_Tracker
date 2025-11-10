@@ -54,39 +54,50 @@ const ChartCard = styled.div`
   box-shadow: 0 4px 10px rgba(0,0,0,0.06);
 `;
 
-/* helpers */
+//Safely format numbers to 2 decimal places string
 function safeFixed(n) {
   return (typeof n === "number" && !isNaN(n)) ? n.toFixed(2) : "0.00";
 }
 
-/* compute from transactions (same as earlier fallback) */
+//Compute report data from transactions as a fallback
 const computeFromTransactions = (txs) => {
+  //Initialize totals
   let total_income = 0;
   let total_expense = 0;
   const by_category = {};
   const by_month = {};
+  //Iterate through transactions
   for (const t of txs) {
+    //Determine type and amount
     const type = String(t.type || "").toLowerCase();
     const amt = Number(t.amount) || 0;
-    // month key YYYY-MM
+    //Get year-month string
     let ym = "unknown";
+    //Date parsing
     const dateStr = t.date || t.created_at || t.timestamp || "";
     if (dateStr) {
       const d = new Date(dateStr);
+      //If date is valid, use it
       if (!isNaN(d)) ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
       else {
+        //Fallback parsing for YYYY-MM-DD format
         const parts = String(dateStr).split("-");
         if (parts.length >= 2) ym = `${parts[0]}-${String(parts[1]).padStart(2,"0")}`;
       }
     }
+    //Creates a new month entry if not exists
     if (!by_month[ym]) by_month[ym] = { income: 0, expense: 0 };
     if (type === "income") {
+      //Income transaction
       total_income += amt;
       by_month[ym].income += amt;
     } else {
+      //Expense transaction
       total_expense += amt;
       by_month[ym].expense += amt;
+      //By category accumulation
       const cat = String(t.category || "Uncategorized");
+      //Initialize if not exists that category amount
       by_category[cat] = (by_category[cat] || 0) + amt;
     }
   }
@@ -94,21 +105,27 @@ const computeFromTransactions = (txs) => {
   return { total_income, total_expense, net_savings, by_category, by_month };
 };
 
+//Reports page component
 export default function Reports() {
+  //State variables
   const [report, setReport] = useState(null);
   const [computedFallback, setComputedFallback] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  //Load report data on component mount
   useEffect(() => {
+    //Use a mounted flag to avoid setting state on unmounted component
     let mounted = true;
     const load = async () => {
       setLoading(true);
       setError(null);
       setComputedFallback(false);
       try {
+        //Try to fetch report from backend
         const data = await getReports();
         console.log("reports endpoint response:", data);
+        //Check if data has totals, else fallback to transactions computation
         const hasTotals = data && (data.total_income !== undefined || data.total_expense !== undefined || data.net_savings !== undefined);
         if (hasTotals) {
           if (!mounted) return;
@@ -116,17 +133,20 @@ export default function Reports() {
           setLoading(false);
           return;
         }
-        // fallback: compute from transactions
+        //If no totals, fallback to computing from transactions
         const txRes = await fetchTransactions({ limit: 1000, offset: 0 });
+        //Handle both paginated and non-paginated responses, Always get an array: results → data → []
         const txs = txRes.data?.results ?? txRes.data ?? [];
+        //Compute report from transactions
         const comp = computeFromTransactions(txs);
+        //Update state
         if (!mounted) return;
         setReport(comp);
         setComputedFallback(true);
       } catch (err) {
         console.error("Reports/transactions fetch error:", err);
-        // attempt transactions fallback on error
         try {
+          //On error, try fallback to computing from transactions
           const txRes = await fetchTransactions({ limit: 1000, offset: 0 });
           const txs = txRes.data?.results ?? txRes.data ?? [];
           const comp = computeFromTransactions(txs);
@@ -134,42 +154,52 @@ export default function Reports() {
           setReport(comp);
           setComputedFallback(true);
         } catch (err2) {
+          //Fallback also failed, set error
           console.error("Transactions fallback also failed:", err2);
           if (!mounted) return;
           setError("Failed to load report data. Check backend or network (see console).");
         }
       } finally {
+        //Always set loading to false
         if (mounted) setLoading(false);
       }
     };
+    //Load on component mount
     load();
+    //Cleanup function to set mounted to false on an unmount
     return () => { mounted = false; };
   }, []);
 
-  // Prepare chart data using useMemo for performance
+  //Using useMemo to compute chart datasets only when report changes..
   const byCategoryArray = useMemo(() => {
+    //Transform by_category object to array of { category, value }
     const bc = report?.by_category || report?.byCategory || {};
-    // If backend returned object, convert to array; if chart already array adapt
+    //Handle both array and object formats
     if (Array.isArray(bc)) {
-      // assume [{ category, value }] or [{ category, total }]
+      //Array handling (if any) 
       return bc.map((r) => ({ category: r.category || r.name || "Unknown", value: Number(r.value ?? r.total ?? 0) }));
     }
+    //Taking object and returning sorted array of { category, value }
     return Object.entries(bc || {}).map(([k, v]) => ({ category: k, value: Number(v) || 0 }))
       .sort((a,b) => b.value - a.value);
   }, [report]);
 
+  //Monthly data array
   const byMonthArray = useMemo(() => {
+    //Transform by_month object to array of { month, income, expense }
     const bm = report?.by_month || report?.byMonth || {};
     if (Array.isArray(bm)) {
-      // array handling (if any)
+      //Array handling (if any)
       return bm.map(r => ({ month: r.month || "unknown", income: Number(r.income || 0), expense: Number(r.expense || 0) }));
     }
+    //Taking object and returning sorted array of { month, income, expense }
     return Object.entries(bm || {}).map(([k, v]) => ({ month: k, income: Number(v.income || 0), expense: Number(v.expense || 0) }))
       .sort((a,b) => a.month.localeCompare(b.month));
-  }, [report]);
+  }, [report]); //Only recompute when report changes
 
-  // chart datasets
+  //Pie chart data for expenses by category
   const pieData = useMemo(() => {
+    //Prepare data for Pie chart
     const labels = byCategoryArray.map((r) => r.category);
     const data = byCategoryArray.map((r) => r.value);
     return {
@@ -186,7 +216,9 @@ export default function Reports() {
     };
   }, [byCategoryArray]);
 
+  //Bar chart data for monthly income vs expense
   const barData = useMemo(() => {
+    //Prepare data for Bar chart
     const labels = byMonthArray.map((m) => m.month);
     const income = byMonthArray.map((m) => m.income);
     const expense = byMonthArray.map((m) => m.expense);
@@ -199,20 +231,25 @@ export default function Reports() {
     };
   }, [byMonthArray]);
 
+  //Options for Pie chart
   const pieOptions = {
     responsive: true,
     plugins: {
+      //Info about which color corresponds to which category
       legend: { position: "bottom" },
+      //Effect on hover
       tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ₹${safeFixed(ctx.parsed)}` } },
     },
   };
 
+  //Options for Bar chart
   const barOptions = {
     responsive: true,
     plugins: {
       legend: { position: "top" },
       tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ₹${safeFixed(ctx.parsed.y || ctx.parsed)}` } },
     },
+    //Axis options
     scales: {
       x: { stacked: false },
       y: { beginAtZero: true },
