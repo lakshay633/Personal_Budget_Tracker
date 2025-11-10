@@ -1,4 +1,5 @@
 from django.db import models
+#To use the custom user model
 from django.conf import settings
 
 class Transaction(models.Model):
@@ -9,6 +10,7 @@ class Transaction(models.Model):
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     date = models.DateField()
 
+    #Timestamp fields
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

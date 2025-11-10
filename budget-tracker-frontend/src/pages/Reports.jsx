@@ -179,7 +179,7 @@ export default function Reports() {
       //Array handling (if any) 
       return bc.map((r) => ({ category: r.category || r.name || "Unknown", value: Number(r.value ?? r.total ?? 0) }));
     }
-    //Taking object and returning sorted array of { category, value }
+    //Taking object and returning sorted array of { category, value } in descending order
     return Object.entries(bc || {}).map(([k, v]) => ({ category: k, value: Number(v) || 0 }))
       .sort((a,b) => b.value - a.value);
   }, [report]);
@@ -192,7 +192,7 @@ export default function Reports() {
       //Array handling (if any)
       return bm.map(r => ({ month: r.month || "unknown", income: Number(r.income || 0), expense: Number(r.expense || 0) }));
     }
-    //Taking object and returning sorted array of { month, income, expense }
+    //Taking object and returning sorted array of { month, income, expense } in ascending order
     return Object.entries(bm || {}).map(([k, v]) => ({ month: k, income: Number(v.income || 0), expense: Number(v.expense || 0) }))
       .sort((a,b) => a.month.localeCompare(b.month));
   }, [report]); //Only recompute when report changes

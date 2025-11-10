@@ -5,4 +5,5 @@ class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
         fields = ("id", "user", "type", "category", "amount", "date")
+        #Cannot manually set user
         read_only_fields = ("user",)
